@@ -1,32 +1,35 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading;
 
 namespace GraphOrientations
 {
     internal class AutomorphismGroupRepository
     {
-        public int GetNextAutomorphismGroupSize(string graphG6)
+        public int GetNextAutomorphismGroupSize(string graphRepresentation)
         {
-            var process = new Process();
-            process.StartInfo.FileName = "pickg.exe";
-            process.StartInfo.Arguments = $"-V --a" + Environment.NewLine;
-            process.StartInfo.UseShellExecute = false;
-            process.StartInfo.RedirectStandardOutput = true;
-            process.StartInfo.RedirectStandardInput = true;
-            process.StartInfo.RedirectStandardError = true;
-            process.Start();
-            process.StandardInput.WriteLine(graphG6 + '\n');
-            var result = process.StandardOutput.ReadLine();
-            var err = process.StandardError.ReadLine();
-            while (!err.Contains('='))
+            using var processInfo = new Process();
+            processInfo.StartInfo.FileName = "pickg.exe";
+            processInfo.StartInfo.Arguments = $"-V --a";
+            processInfo.StartInfo.UseShellExecute = false;
+            processInfo.StartInfo.RedirectStandardOutput = true;
+            processInfo.StartInfo.RedirectStandardInput = true;
+            processInfo.StartInfo.RedirectStandardError = true;
+            processInfo.Start();
+
+            processInfo.StandardInput.WriteLine(graphRepresentation + '\n');
+            processInfo.StandardInput.Flush();
+
+            string errorLine;
+            do
             {
-                err = process.StandardError.ReadLine();
-            }
-            process.WaitForExit();
-            return int.Parse(err.Split('=').Last().TakeWhile(x => char.IsDigit(x)).ToArray());
+                errorLine = processInfo.StandardError.ReadLine();
+            } while (!errorLine.Contains('='));
+
+            processInfo.WaitForExit();
+
+            var digits = errorLine.Split('=').Last().TakeWhile(char.IsDigit);
+            return int.Parse(new string(digits.ToArray()));
         }
+
     }
 }

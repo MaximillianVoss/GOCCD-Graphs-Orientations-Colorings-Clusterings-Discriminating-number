@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 
 namespace GraphOrientations
 {
@@ -17,41 +15,40 @@ namespace GraphOrientations
             {
                 if (deep == n)
                 {
-                    yield return vertexNumbers.ToArray();
+                    yield return (int[])vertexNumbers.Clone();
                 }
-
-                for (int i = 0; i < n; i++)
+                else
                 {
-                    if (used[i])
+                    for (int i = 0; i < n; i++)
                     {
-                        continue;
+                        if (!used[i])
+                        {
+                            used[i] = true;
+                            vertexNumbers[deep] = i;
+
+                            foreach (var val in Enumerate(used, deep + 1))
+                                yield return val;
+
+                            used[i] = false;
+                        }
                     }
-
-                    used[i] = true;
-                    vertexNumbers[deep] = i;
-
-                    foreach (var val in Enumerate(used, deep + 1))
-                        yield return val;
-
-                    used[i] = false;
                 }
             }
         }
 
         public static int[] UseSubstitution(int[] graph, int[] substitution)
         {
-            var result = new int[graph.Length];
+            int length = graph.Length;
+            var result = new int[length];
 
-            for (int i = 0; i < graph.Length; i++)
+            for (int i = 0; i < length; i++)
             {
-                for (int j = 0, jmask = 1; j < graph.Length; j++, jmask <<= 1)
+                for (int j = 0, jmask = 1; j < length; j++, jmask <<= 1)
                 {
-                    if ((graph[i] & jmask) == 0)
+                    if ((graph[i] & jmask) != 0)
                     {
-                        continue;
+                        result[substitution[i]] |= 1 << substitution[j];
                     }
-
-                    result[substitution[i]] |= 1 << substitution[j];
                 }
             }
 
@@ -60,24 +57,20 @@ namespace GraphOrientations
 
         public static long GetGraphCode(int[] graph)
         {
-            if (graph.Length > 8)
-            {
-                throw new ArgumentException("Method don't works with graphs 9 or more degree.");
-            }
+            int length = graph.Length;
+            //if (length > 8)
+            //{
+            //    throw new ArgumentException("Method doesn't work with graphs 9 or more degree.");
+            //}
 
-            var result = 0L;
-            var currentMask = 1L;
+            long result = 0L;
+            long currentMask = 1L;
 
-            for (int i = 0; i < graph.Length; i++)
+            for (int i = 0; i < length; i++)
             {
-                for (int j = 0, jmask = 1; j < graph.Length; j++, jmask <<= 1)
+                for (int j = 0, jmask = 1; j < length; j++, jmask <<= 1)
                 {
-                    if (i == j)
-                    {
-                        continue;
-                    }
-
-                    if ((graph[i] & jmask) != 0)
+                    if (i != j && (graph[i] & jmask) != 0)
                     {
                         result |= currentMask;
                     }
@@ -89,4 +82,5 @@ namespace GraphOrientations
             return result;
         }
     }
+
 }

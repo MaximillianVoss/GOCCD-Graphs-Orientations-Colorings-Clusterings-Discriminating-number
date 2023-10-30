@@ -1,124 +1,163 @@
-﻿using System;
+﻿using CommandLine;
+using GraphOrientations.Generator;
+using GraphOrientations.Writers;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using CommandLine;
-using GraphOrientations.Writers;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace GraphOrientations
 {
     internal class EntryPoint
     {
-        static void Main(string[] args)
+        /// <summary>
+        /// Лимит графов
+        /// </summary>
+        private static int Limit = 1000;
+        private static string outputFileNameCommon;
+        private static StreamWriter fileWriter;
+
+        public static void Main(string[] args)
         {
             var consoleArguments = new Options();
             Parser.Default.ParseArguments<Options>(args)
                 .WithParsed(o =>
                 {
                     var startTime = DateTime.Now;
-                    var reader = new GraphsReader();
-                    var mapper = new GraphsMapper();
                     var orientator = new GraphOrientator();
-                    var nautyOrientator = new NautyGraphOrientator();
+                    var generator = new GeneratorBase();
                     IWriter writer = o.WriteGraphsToFile ? new FileWriterCustom(o.FileName) : new ConsoleWriter();
-                    var n = o.VertexCount;
+                    int vertexCount = o.VertexCount;
+                    int colorsCount = o.ColorsCount;
+                    Console.WriteLine($"Число вершин: {vertexCount}");
+                    Console.WriteLine($"число цветов: {colorsCount}");
+                    outputFileNameCommon = $"раскраски_вершины_{vertexCount}_цвета_{colorsCount}.txt";
 
-                    var totalCount = 0;
-
-                    var automorphismReader = new AutomorphismGroupRepository();
-
-                    var groupSizeToCount = new Dictionary<int, (int graphsCount, int OrientationsTotalCount)>();
-
-                    if (o.CalculateOnly)
+                    using (fileWriter = new StreamWriter(outputFileNameCommon))
                     {
+                        fileWriter.Flush();
+                        int totalCount = 0;
+                        int id = 0;
                         var resultOutput = new List<string>();
+                        var automorphismReader = new AutomorphismGroupRepository();
+                        var groupSizeToCount = new Dictionary<int, (int graphsCount, int OrientationsTotalCount)>();
+                        var graphs = generator.GenerateGraphs(vertexCount, GeneratorType.GENERATOR_BY_CANONICAL_CODE);
+                        if (graphs.Count() > Limit)
+                            graphs = graphs.Take(Limit).ToList();
+                        var parallelOptions = new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount };
 
-                        foreach (var g6Graph in reader.ReadGraphs(n))
-                        {       
-                            var graph = mapper.FromG6(g6Graph);
-                            var groupSize = automorphismReader.GetNextAutomorphismGroupSize(g6Graph);
 
-                            int[] orientResult;
-                            if (o.NautyCalculation)
+                        Parallel.ForEach(graphs, parallelOptions, g6Graph =>
+                        {
+                            var graph = new Graph(g6Graph);
+                            int groupSize = automorphismReader.GetNextAutomorphismGroupSize(g6Graph);
+
+                            if (o.CalculateOnly)
                             {
-                                orientResult = nautyOrientator.OrientWithoutGrahps(g6Graph).ToArray();
+                                int[] orientResult = orientator.OrientWithoutGraphs(g6Graph, o.NautyCalculation).ToArray();
+                                ProcessGraphCalculations(Interlocked.Increment(ref id), g6Graph, groupSize, orientResult, colorsCount, groupSizeToCount, ref totalCount);
+
                             }
                             else
                             {
-                                orientResult = orientator.OrientWithoutGrahps(graph).ToArray();
-                            }
-                            var currentOrientationsCount = orientResult.Length;
-                            var graphsCountSavingGroupSize = orientResult.Count(x => x == groupSize);
-                            var averageGroupSize = (orientResult.Sum() + .0) / orientResult.Length;
+                                writer.WriteLine($"Current graph: {g6Graph}; Group size: {groupSize}");
+                                writer.WriteLine();
 
-                            totalCount += currentOrientationsCount;
-
-                            if (groupSizeToCount.TryGetValue(groupSize, out var value))
-                            { 
-                                groupSizeToCount[groupSize] = (value.graphsCount + 1, value.OrientationsTotalCount + currentOrientationsCount);
-                            }
-                            else
-                            {
-                                groupSizeToCount.Add(groupSize, (1, currentOrientationsCount));
-                            }
-
-                            var output = $"GroupSizeOf {g6Graph} = {groupSize}; Orientations count = {currentOrientationsCount}; GraphsCountSavingGroupSize = {graphsCountSavingGroupSize}; AverageGroupSize = {averageGroupSize:#.####}";
-                            Console.WriteLine(output);
-                            resultOutput.Add(output);
-                        }
-
-                        Console.WriteLine();
-                        Console.WriteLine($"Total orientations count: {totalCount}.");
-                        Console.WriteLine($"Total calculating time in seconds: {(DateTime.Now - startTime).TotalSeconds}.");
-                        Console.WriteLine();
-                        Console.WriteLine("Average number of orientations depending on the size of the group:");
-                        File.WriteAllLines($"Result_{o.VertexCount}.txt", resultOutput);
-
-                        List<string> graphsCountByGroupSize = new List<string>();
-                        List<string> orientationsAverageByGroupSize = new List<string>();
-                        foreach (var kvp in groupSizeToCount.OrderBy(x => x.Key))
-                        {
-                            Console.WriteLine($"Group size: {kvp.Key}; Orientations count: {(kvp.Value.OrientationsTotalCount + .0) / kvp.Value.graphsCount:#.##}");
-                            graphsCountByGroupSize.Add($"({kvp.Key};{kvp.Value.OrientationsTotalCount})");
-                            orientationsAverageByGroupSize.Add($"({kvp.Key};{(kvp.Value.OrientationsTotalCount + .0) / kvp.Value.graphsCount})");
-                        }
-
-                        File.WriteAllText($"GraphsCountByGroupSize_{n}.txt", string.Join(" ", graphsCountByGroupSize));
-                        File.WriteAllText($"OrientationsAverageByGroupSize_{n}.txt", string.Join(" ", orientationsAverageByGroupSize));
-
-                        var d = groupSizeToCount.OrderBy(x => x.Key).ToList();
-
-                        return;
-                    }
-
-                    // don't use it, too mutch data in console will do slow
-                    foreach (var g6Graph in reader.ReadGraphs(n))
-                    {
-                        var graph = mapper.FromG6(g6Graph);
-
-                        var groupSize = automorphismReader.GetNextAutomorphismGroupSize(g6Graph);
-                        writer.WriteLine($"Current graph: {g6Graph}; Group size: {groupSize}");
-                        writer.WriteLine();
-
-                        foreach (var (oriented, _) in orientator.Orient(graph))
-                        {
-                            for (int i = 0; i < n; i++)
-                            {
-                                for (int j = 0, jMask = 1; j < n; j++, jMask <<= 1)
+                                foreach (var (oriented, _) in orientator.Orient(graph.AdjacencyMatrix))
                                 {
-                                    writer.Write((oriented[i] & jMask) == 0 ? 0 : 1);
+                                    for (int i = 0; i < vertexCount; i++)
+                                    {
+                                        for (int j = 0, jMask = 1; j < vertexCount; j++, jMask <<= 1)
+                                        {
+                                            writer.Write((oriented[i] & jMask) == 0 ? 0 : 1);
+                                        }
+                                        writer.WriteLine();
+                                    }
+                                    writer.WriteLine();
+                                    Interlocked.Increment(ref totalCount);
                                 }
                                 writer.WriteLine();
                             }
-                            writer.WriteLine();
-                            totalCount++;
+                        });
+
+                        if (o.CalculateOnly)
+                        {
+                            DisplayResults(totalCount, startTime, groupSizeToCount, o.VertexCount);
+                            SaveResultsToFile(o.VertexCount, resultOutput, groupSizeToCount);
                         }
-                        writer.WriteLine();                
+
+                        Console.WriteLine($"Общее количество графов: {totalCount}..");
+                        Console.WriteLine($"Общее время вычислений в секундах: {(DateTime.Now - startTime).TotalSeconds}.");
+
                     }
 
-                    Console.WriteLine($"Total graphs count: {totalCount}.");
-                    Console.WriteLine($"Total calculating time in seconds: {(DateTime.Now - startTime).TotalSeconds}.");
                 });
+            Console.WriteLine("Для продолжения нажмите любую клавишу");
+            Console.ReadLine();
+        }
+
+        private static void ProcessGraphCalculations(int id, string g6Graph, int groupSize, int[] orientResult, int colorsCount, Dictionary<int, (int graphsCount, int OrientationsTotalCount)> groupSizeToCount, ref int totalCount)
+        {
+            int currentOrientationsCount = orientResult.Length;
+            int graphsCountSavingGroupSize = orientResult.Count(x => x == groupSize);
+            double averageGroupSize = (double)orientResult.Sum() / orientResult.Length;
+
+            totalCount += currentOrientationsCount;
+
+            if (groupSizeToCount.TryGetValue(groupSize, out var value))
+            {
+                groupSizeToCount[groupSize] = (value.graphsCount + 1, value.OrientationsTotalCount + currentOrientationsCount);
+            }
+            else
+            {
+                groupSizeToCount.Add(groupSize, (1, currentOrientationsCount));
+            }
+            var coloringsCount = GraphColoring.ChromaticPolynomial(g6Graph, colorsCount);
+            //РазмерГруппы,КоличествоРаскрасок,КоличествоОриентаций,КоличествоГрафовССохранениемРазмераГруппы,СреднийРазмерГруппы
+            string format = "Номер: {0,10}; Граф: {1,8}; РГ: {2,8}; КР: {3,8}; КО: {4,8}; КГсРГ: {5,8}; СРГ: {6,8:#.####}";
+            string output = string.Format(format, id, g6Graph, groupSize, coloringsCount, currentOrientationsCount, graphsCountSavingGroupSize, averageGroupSize);
+            WriteToFile(output);
+            Console.WriteLine(output);
+        }
+
+        private static void WriteToFile(string text)
+        {
+            fileWriter.WriteLine(text);
+        }
+
+        private static void DisplayResults(int totalCount, DateTime startTime, Dictionary<int, (int graphsCount, int OrientationsTotalCount)> groupSizeToCount, int vertexCount)
+        {
+            Console.WriteLine($"Общее количество ориентаций {totalCount}.");
+            Console.WriteLine($"Количество вершин в графе: {vertexCount}");
+            Console.WriteLine("Среднее количество ориентаций в зависимости от размера группы:");
+
+            const int paddingGroupSize = 20;
+            const int paddingOrientationCount = 20;
+
+            Console.WriteLine($"Размер группы".PadRight(paddingGroupSize) + $"Количество ориентаций".PadRight(paddingOrientationCount));
+            foreach (var kvp in groupSizeToCount.OrderBy(x => x.Key))
+            {
+                Console.WriteLine($"{kvp.Key.ToString().PadRight(paddingGroupSize)}{(double)kvp.Value.OrientationsTotalCount / kvp.Value.graphsCount:#.##}".PadRight(paddingOrientationCount));
+            }
+
+        }
+
+        private static void SaveResultsToFile(int n, List<string> resultOutput, Dictionary<int, (int graphsCount, int OrientationsTotalCount)> groupSizeToCount)
+        {
+            File.WriteAllLines($"Result_{n}.txt", resultOutput);
+
+            List<string> graphsCountByGroupSize = new List<string>();
+            List<string> orientationsAverageByGroupSize = new List<string>();
+            foreach (var kvp in groupSizeToCount.OrderBy(x => x.Key))
+            {
+                graphsCountByGroupSize.Add($"({kvp.Key};{kvp.Value.OrientationsTotalCount})");
+                orientationsAverageByGroupSize.Add($"({kvp.Key};{(double)kvp.Value.OrientationsTotalCount / kvp.Value.graphsCount})");
+            }
+
+            File.WriteAllText($"GraphsCountByGroupSize_{n}.txt", string.Join(" ", graphsCountByGroupSize));
+            File.WriteAllText($"OrientationsAverageByGroupSize_{n}.txt", string.Join(" ", orientationsAverageByGroupSize));
         }
     }
 }

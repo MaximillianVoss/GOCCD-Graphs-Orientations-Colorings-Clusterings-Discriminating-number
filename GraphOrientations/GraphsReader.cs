@@ -5,26 +5,27 @@ namespace GraphOrientations
 {
     internal class GraphsReader
     {
-        public IEnumerable<string> ReadGraphs(int vectexCount)
+        public IEnumerable<string> ReadGraphs(int vertexCount)
         {
-            Process compiler = new Process();
-            compiler.StartInfo.FileName = "geng.exe";
-            compiler.StartInfo.Arguments = $"{vectexCount} -c";
-            compiler.StartInfo.UseShellExecute = false;
-            compiler.StartInfo.RedirectStandardOutput = true;
+            var startInfo = new ProcessStartInfo
+            {
+                FileName = "geng.exe",
+                Arguments = $"{vertexCount} -c",
+                UseShellExecute = false,
+                RedirectStandardOutput = true
+            };
+            using var compiler = new Process { StartInfo = startInfo };
             compiler.Start();
-
-            for (; ; )
+            while (!compiler.StandardOutput.EndOfStream)
             {
                 var current = compiler.StandardOutput.ReadLine();
-
-                if (string.IsNullOrEmpty(current))
+                if (!string.IsNullOrWhiteSpace(current))
                 {
-                    break;
+                    yield return current;
                 }
-
-                yield return current;
             }
         }
+
+
     }
 }

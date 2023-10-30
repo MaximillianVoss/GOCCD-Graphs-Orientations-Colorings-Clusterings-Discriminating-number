@@ -4,6 +4,9 @@ namespace GraphOrientations
 {
     internal class Options
     {
+        [Option('C', "Colors", Required = true, HelpText = "Colors count.")]
+        public int ColorsCount { get; set; }
+
         [Option('v', "VertexCount", Required = true, HelpText = "Vertex count.")]
         public int VertexCount { get; set; }
 
