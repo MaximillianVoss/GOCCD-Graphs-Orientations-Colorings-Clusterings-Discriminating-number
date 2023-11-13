@@ -18,6 +18,11 @@ namespace GraphOrientations
         private static int Limit = 1000;
         private static string outputFileNameCommon;
         private static StreamWriter fileWriter;
+        private static int[] GenerateRandomColors(int vertexCount, int colorsCount)
+        {
+            Random random = new Random();
+            return Enumerable.Range(0, vertexCount).Select(_ => random.Next(1, colorsCount + 1)).ToArray();
+        }
 
         public static void Main(string[] args)
         {
@@ -52,12 +57,17 @@ namespace GraphOrientations
                         Parallel.ForEach(graphs, parallelOptions, g6Graph =>
                         {
                             var graph = new Graph(g6Graph);
+                            int[] colors = GenerateRandomColors(vertexCount, colorsCount);
+                            graph.Colors = colors; // Присвоение цветов графу
                             int groupSize = automorphismReader.GetNextAutomorphismGroupSize(g6Graph);
 
                             if (o.CalculateOnly)
                             {
                                 int[] orientResult = orientator.OrientWithoutGraphs(g6Graph, o.NautyCalculation).ToArray();
-                                ProcessGraphCalculations(Interlocked.Increment(ref id), g6Graph, groupSize, orientResult, colorsCount, groupSizeToCount, ref totalCount);
+                                ProcessGraphCalculations(
+                                    Interlocked.Increment(ref id), graph, g6Graph, groupSize, orientResult,
+                                    colorsCount, groupSizeToCount, ref totalCount
+                                    );
 
                             }
                             else
@@ -98,7 +108,7 @@ namespace GraphOrientations
             Console.ReadLine();
         }
 
-        private static void ProcessGraphCalculations(int id, string g6Graph, int groupSize, int[] orientResult, int colorsCount, Dictionary<int, (int graphsCount, int OrientationsTotalCount)> groupSizeToCount, ref int totalCount)
+        private static void ProcessGraphCalculations(int id, Graph graph, string g6Graph, int groupSize, int[] orientResult, int colorsCount, Dictionary<int, (int graphsCount, int OrientationsTotalCount)> groupSizeToCount, ref int totalCount)
         {
             int currentOrientationsCount = orientResult.Length;
             int graphsCountSavingGroupSize = orientResult.Count(x => x == groupSize);
@@ -115,9 +125,20 @@ namespace GraphOrientations
                 groupSizeToCount.Add(groupSize, (1, currentOrientationsCount));
             }
             var coloringsCount = GraphColoring.ChromaticPolynomial(g6Graph, colorsCount);
+            //var distinguishingNumber = GraphColoring.ComputeDistinguishingNumber(g6Graph);
+            var distinguishingNumber = graph.GetDistinguishingNumber();
             //РазмерГруппы,КоличествоРаскрасок,КоличествоОриентаций,КоличествоГрафовССохранениемРазмераГруппы,СреднийРазмерГруппы
-            string format = "Номер: {0,10}; Граф: {1,8}; РГ: {2,8}; КР: {3,8}; КО: {4,8}; КГсРГ: {5,8}; СРГ: {6,8:#.####}";
-            string output = string.Format(format, id, g6Graph, groupSize, coloringsCount, currentOrientationsCount, graphsCountSavingGroupSize, averageGroupSize);
+            string format = "Номер: {0,10}; Граф: {1,8}; РГ: {2,8}; КР: {3,8}; КО: {4,8}; КГсРГ: {5,8}; СРГ: {6,8:#.####}; РЧ:{7}";
+            string output = string.Format(
+                format,
+                id,
+                g6Graph,
+                groupSize,
+                coloringsCount,
+                currentOrientationsCount,
+                graphsCountSavingGroupSize,
+                averageGroupSize,
+                distinguishingNumber);
             WriteToFile(output);
             Console.WriteLine(output);
         }

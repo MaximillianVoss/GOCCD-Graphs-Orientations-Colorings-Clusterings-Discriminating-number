@@ -1,9 +1,8 @@
 ﻿using System;
+using System.Linq;
 
 namespace GraphOrientations
 {
-
-
     public class GraphColoring
     {
         public static int[,] G6ToAdjacencyMatrix(string g6)
@@ -155,6 +154,48 @@ namespace GraphOrientations
                 }
             }
             return true;
+        }
+
+        public static int ComputeDistinguishingNumber(int[,] adjacencyMatrix)
+        {
+            int vertexCount = adjacencyMatrix.GetLength(0);
+            int[] colors = Enumerable.Repeat(-1, vertexCount).ToArray();
+            bool[] availableColors = new bool[vertexCount];
+
+            colors[0] = 0; // Начинаем с раскрашивания первой вершины в первый цвет
+
+            for (int v = 1; v < vertexCount; v++)
+            {
+                Array.Fill(availableColors, true); // Сброс доступных цветов
+
+                // Проверка цветов смежных вершин
+                for (int i = 0; i < vertexCount; i++)
+                {
+                    if (adjacencyMatrix[v, i] == 1 && colors[i] != -1)
+                    {
+                        availableColors[colors[i]] = false;
+                    }
+                }
+
+                // Нахождение первого доступного цвета
+                int cr;
+                for (cr = 0; cr < vertexCount; cr++)
+                {
+                    if (availableColors[cr]) break;
+                }
+
+                colors[v] = cr; // Назначение найденного цвета вершине
+            }
+
+            // Возврат количества используемых цветов + 1, поскольку индексация начинается с 0
+            return colors.Max() + 1;
+        }
+
+        // Дополнительный метод для работы с g6 форматом
+        public static int ComputeDistinguishingNumber(string g6)
+        {
+            int[,] adjacencyMatrix = G6ToAdjacencyMatrix(g6);
+            return ComputeDistinguishingNumber(adjacencyMatrix);
         }
 
     }
