@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net7.0</TargetFramework>
+    <RootNamespace>Точка_входа</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GraphBase\GraphBase.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Утилиты\" />
+  </ItemGroup>
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="xcopy /Y /I &quot;$(ProjectDir)Утилиты\*.*&quot; &quot;$(TargetDir)&quot;&#xD;&#xA;" />
+  </Target>
+
+</Project>

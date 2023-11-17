@@ -5,6 +5,12 @@ VisualStudioVersion = 17.7.34221.43
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphOrientations", "GraphOrientations\GraphOrientations.csproj", "{809FBF12-D1F8-4A0E-85F7-5A48F27A0AE9}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphBase", "GraphBase\GraphBase.csproj", "{7999CC8F-8FD9-494B-A74C-2B0311E95BB5}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphBaseTests", "GraphBaseTests\GraphBaseTests.csproj", "{22B3D9AC-2561-437A-9A16-61E39315DAAB}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Точка входа", "Точка входа\Точка входа.csproj", "{9C9A8617-5A3F-4AAF-A8CE-104C89E19E32}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +21,18 @@ Global
 		{809FBF12-D1F8-4A0E-85F7-5A48F27A0AE9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{809FBF12-D1F8-4A0E-85F7-5A48F27A0AE9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{809FBF12-D1F8-4A0E-85F7-5A48F27A0AE9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7999CC8F-8FD9-494B-A74C-2B0311E95BB5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7999CC8F-8FD9-494B-A74C-2B0311E95BB5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7999CC8F-8FD9-494B-A74C-2B0311E95BB5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7999CC8F-8FD9-494B-A74C-2B0311E95BB5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{22B3D9AC-2561-437A-9A16-61E39315DAAB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{22B3D9AC-2561-437A-9A16-61E39315DAAB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{22B3D9AC-2561-437A-9A16-61E39315DAAB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{22B3D9AC-2561-437A-9A16-61E39315DAAB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9C9A8617-5A3F-4AAF-A8CE-104C89E19E32}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C9A8617-5A3F-4AAF-A8CE-104C89E19E32}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C9A8617-5A3F-4AAF-A8CE-104C89E19E32}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C9A8617-5A3F-4AAF-A8CE-104C89E19E32}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
