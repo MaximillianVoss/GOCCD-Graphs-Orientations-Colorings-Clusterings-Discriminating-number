@@ -26,11 +26,13 @@ class Program
             Console.WriteLine("2 - QuickGraph");
             int graphTypeChoice = Convert.ToInt32(Console.ReadLine());
 
+            Console.Write("Введите количество цветов для раскраски: ");
+            int numColors = Convert.ToInt32(Console.ReadLine());
+
             var generator = new GeneratorNaughty(vertexCount);
             string generationMethod = methodChoice == 1 ? "Вектор степеней" : "Канонический код";
             string graphType = graphTypeChoice == 1 ? "Пользовательский" : "QuickGraph";
-
-            var reportFileName = $"Отчет граф {vertexCount} вершин - {generationMethod} - {graphType}.txt";
+            var reportFileName = $"Отчет граф {vertexCount} вершин - {generationMethod} - {graphType} - {numColors} цветов.txt";
 
             using (var reportFile = new StreamWriter(reportFileName))
             {
@@ -62,7 +64,7 @@ class Program
                         Console.Write($"Граф #{graphNumber}:");
                         reportFile.Write($"Граф #{graphNumber}:");
 
-                        var graphInfo = graph.GetInfo();
+                        var graphInfo = graph.ToString(numColors);
                         Console.WriteLine(graphInfo);
                         reportFile.WriteLine(graphInfo);
 

@@ -59,12 +59,11 @@ namespace GraphBase.Графы
             // Получаем G6-представление графа
             string g6String = new G6String(new AdjacencyMatrix(this.AdjacencyMatrix)).G6;
 
-            // Получаем хроматическое число и хроматический индекс
-            int chromaticNumber = this.GetChromaticNumber();
-            int chromaticIndex = this.GetChromaticIndex();
+            // Получаем различительное число и хроматический индекс
+            int distinguishingNumber = GetDistinguishingNumber(numberOfColors);
 
             // Формируем итоговую строку
-            return $"G6-представление: {g6String}, Хроматическое число: {chromaticNumber}, Хроматический индекс: {chromaticIndex}";
+            return $"G6-представление: {g6String}, Различительное число: {distinguishingNumber}";
         }
 
         public int GetChromaticNumber(UndirectedGraph<int, Edge<int>> graph)

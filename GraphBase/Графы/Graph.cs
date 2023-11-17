@@ -48,7 +48,7 @@ namespace GraphBase.Графы
             var stopwatch = Stopwatch.StartNew();
             string info = GetInfo(numberOfColors);
             stopwatch.Stop();
-            return $"{info} Вычислено за: {stopwatch.ElapsedMilliseconds} мс";
+            return $"{info}, Вычислено за: {stopwatch.ElapsedMilliseconds} мс";
         }
         #endregion
     }
