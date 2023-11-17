@@ -35,7 +35,6 @@ namespace GraphBase.Графы
             return graph;
         }
 
-
         public override int GetChromaticNumber()
         {
             UndirectedGraph<int, Edge<int>> graph = this.ConvertToQuickGraph();
@@ -59,7 +58,7 @@ namespace GraphBase.Графы
             // Получаем G6-представление графа
             string g6String = new G6String(new AdjacencyMatrix(this.AdjacencyMatrix)).G6;
 
-            // Получаем различительное число и хроматический индекс
+            // Получаем различительное число
             int distinguishingNumber = GetDistinguishingNumber(numberOfColors);
 
             // Формируем итоговую строку
