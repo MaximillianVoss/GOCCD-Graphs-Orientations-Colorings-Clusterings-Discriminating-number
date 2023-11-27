@@ -1,5 +1,4 @@
 ﻿using GraphBase.Параметры;
-using System.Text;
 
 namespace GraphBase.Графы
 {
@@ -20,7 +19,7 @@ namespace GraphBase.Графы
         /// <param name="adjacencyMatrix">Матрица смежности графа.</param>
         public GraphCustom(int[,] adjacencyMatrix)
         {
-            _adjacencyMatrix = adjacencyMatrix ?? throw new ArgumentNullException(nameof(adjacencyMatrix));
+            this._adjacencyMatrix = adjacencyMatrix ?? throw new ArgumentNullException(nameof(adjacencyMatrix));
         }
 
         /// <summary>
@@ -32,7 +31,7 @@ namespace GraphBase.Графы
             if (degreeVector == null)
                 throw new ArgumentNullException(nameof(degreeVector));
 
-            _adjacencyMatrix = degreeVector.ToAdjacencyMatrix().Matrix;
+            this._adjacencyMatrix = degreeVector.ToAdjacencyMatrix().Matrix;
         }
 
         /// <summary>
@@ -44,7 +43,7 @@ namespace GraphBase.Графы
             if (g6String == null)
                 throw new ArgumentNullException(nameof(g6String));
 
-            _adjacencyMatrix = g6String.ToAdjacencyMatrix().Matrix;
+            this._adjacencyMatrix = g6String.ToAdjacencyMatrix().Matrix;
         }
 
         /// <summary>
@@ -56,7 +55,7 @@ namespace GraphBase.Графы
             if (canonicalCode == null)
                 throw new ArgumentNullException(nameof(canonicalCode));
 
-            _adjacencyMatrix = canonicalCode.ToAdjacencyMatrix().Matrix;
+            this._adjacencyMatrix = canonicalCode.ToAdjacencyMatrix().Matrix;
         }
         #endregion
 
@@ -88,26 +87,26 @@ namespace GraphBase.Графы
         ///</returns>
         public override int GetChromaticNumber()
         {
-            int[] colorAssignments = new int[VerticesCount];
-            for (int i = 0; i < VerticesCount; i++)
+            int[] colorAssignments = new int[this.VerticesCount];
+            for (int i = 0; i < this.VerticesCount; i++)
                 colorAssignments[i] = -1;
 
             colorAssignments[0] = 0; // Назначаем первому узлу цвет 0
 
-            bool[] availableColors = new bool[VerticesCount];
-            for (int i = 0; i < VerticesCount; i++)
+            bool[] availableColors = new bool[this.VerticesCount];
+            for (int i = 0; i < this.VerticesCount; i++)
                 availableColors[i] = true;
 
-            for (int u = 1; u < VerticesCount; u++)
+            for (int u = 1; u < this.VerticesCount; u++)
             {
-                for (int i = 0; i < VerticesCount; i++)
+                for (int i = 0; i < this.VerticesCount; i++)
                 {
-                    if (_adjacencyMatrix[u, i] == 1 && colorAssignments[i] != -1)
+                    if (this._adjacencyMatrix[u, i] == 1 && colorAssignments[i] != -1)
                         availableColors[colorAssignments[i]] = false;
                 }
 
                 int cr;
-                for (cr = 0; cr < VerticesCount; cr++)
+                for (cr = 0; cr < this.VerticesCount; cr++)
                 {
                     if (availableColors[cr])
                         break;
@@ -115,7 +114,7 @@ namespace GraphBase.Графы
 
                 colorAssignments[u] = cr; // Назначаем узлу u минимально доступный цвет
 
-                for (int i = 0; i < VerticesCount; i++)
+                for (int i = 0; i < this.VerticesCount; i++)
                     availableColors[i] = true; // Сброс доступных цветов для следующего узла
             }
 
@@ -141,46 +140,46 @@ namespace GraphBase.Графы
         public override int GetChromaticIndex()
         {
             // Предполагаем, что каждое ребро изначально не окрашено
-            int[,] edgeColors = new int[VerticesCount, VerticesCount];
-            for (int i = 0; i < VerticesCount; i++)
+            int[,] edgeColors = new int[this.VerticesCount, this.VerticesCount];
+            for (int i = 0; i < this.VerticesCount; i++)
             {
-                for (int j = 0; j < VerticesCount; j++)
+                for (int j = 0; j < this.VerticesCount; j++)
                     edgeColors[i, j] = -1;
             }
 
             int maxColor = 0;
 
             // Жадно окрашиваем каждое ребро
-            for (int u = 0; u < VerticesCount; u++)
+            for (int u = 0; u < this.VerticesCount; u++)
             {
-                for (int v = 0; v < VerticesCount; v++)
+                for (int v = 0; v < this.VerticesCount; v++)
                 {
-                    if (u >= VerticesCount || v >= VerticesCount) // Проверка границ массива
+                    if (u >= this.VerticesCount || v >= this.VerticesCount) // Проверка границ массива
                         continue;
 
-                    if (_adjacencyMatrix[u, v] != 1 || edgeColors[u, v] != -1)
+                    if (this._adjacencyMatrix[u, v] != 1 || edgeColors[u, v] != -1)
                         continue;
 
-                    bool[] availableColors = new bool[VerticesCount];
+                    bool[] availableColors = new bool[this.VerticesCount];
                     Array.Fill(availableColors, true);
 
                     // Проверяем цвета смежных рёбер
-                    for (int i = 0; i < VerticesCount; i++)
+                    for (int i = 0; i < this.VerticesCount; i++)
                     {
-                        if (i >= VerticesCount) // Проверка границ массива
+                        if (i >= this.VerticesCount) // Проверка границ массива
                             continue;
 
-                        if (_adjacencyMatrix[u, i] == 1 && edgeColors[u, i] != -1)
+                        if (this._adjacencyMatrix[u, i] == 1 && edgeColors[u, i] != -1)
                             availableColors[edgeColors[u, i]] = false;
-                        if (_adjacencyMatrix[v, i] == 1 && edgeColors[v, i] != -1)
+                        if (this._adjacencyMatrix[v, i] == 1 && edgeColors[v, i] != -1)
                             availableColors[edgeColors[v, i]] = false;
                     }
 
                     // Выбираем первый доступный цвет
                     int cr;
-                    for (cr = 0; cr < VerticesCount; cr++)
+                    for (cr = 0; cr < this.VerticesCount; cr++)
                     {
-                        if (cr >= VerticesCount) // Проверка границ массива
+                        if (cr >= this.VerticesCount) // Проверка границ массива
                             break;
 
                         if (availableColors[cr])
@@ -193,6 +192,151 @@ namespace GraphBase.Графы
             }
 
             return maxColor;
+        }
+
+        #endregion
+
+        #region Различительное число упрощенная версия
+        public int GetDistinguishingNumberLite(int maxColors = 10)
+        {
+            int n = _adjacencyMatrix.GetLength(0);
+            int edgeCount = 0;
+            bool isCompleteGraph = true;
+
+            // Вычисляем количество рёбер и проверяем, является ли граф полносвязным
+            for (int i = 0; i < n; i++)
+            {
+                for (int j = i + 1; j < n; j++)
+                {
+                    if (_adjacencyMatrix[i, j] == 1)
+                    {
+                        edgeCount++;
+                    }
+                    else if (i != j)
+                    {
+                        isCompleteGraph = false;
+                    }
+                }
+            }
+
+            if (isCompleteGraph)
+            {
+                return n <= maxColors ? n : -1; // Для полносвязного графа, если n превышает maxColors, возвращаем -1
+            }
+
+            // Оцениваем плотность графа
+            double density = (double)edgeCount / (n * (n - 1) / 2);
+            int estimatedDistinguishingNumber;
+
+            if (density > 0.75)
+            {
+                estimatedDistinguishingNumber = n - 1;
+            }
+            else if (density > 0.5)
+            {
+                estimatedDistinguishingNumber = Math.Min(n / 2, 5);
+            }
+            else
+            {
+                estimatedDistinguishingNumber = Math.Min(3, n);
+            }
+
+            // Сравниваем оценочное различительное число с maxColors
+            return estimatedDistinguishingNumber <= maxColors ? estimatedDistinguishingNumber : -1;
+        }
+
+
+        private void SimpleColoring(int[] colors, int maxColors)
+        {
+            int n = this._adjacencyMatrix.GetLength(0);
+            int[] degrees = new int[n];
+            var vertices = new List<int>(n);
+
+            // Вычисляем степень каждой вершины
+            for (int i = 0; i < n; i++)
+            {
+                int degree = 0;
+                for (int j = 0; j < n; j++)
+                {
+                    if (this._adjacencyMatrix[i, j] == 1)
+                        degree++;
+                }
+                degrees[i] = degree;
+                vertices.Add(i);
+            }
+
+            // Сортируем вершины по убыванию степени
+            vertices.Sort((a, b) => degrees[b].CompareTo(degrees[a]));
+
+            // Инициализируем все цвета как -1 (не окрашено)
+            Array.Fill(colors, -1);
+
+            // Раскрашиваем каждую вершину
+            foreach (int vertex in vertices)
+            {
+                bool[] availableColors = new bool[maxColors];
+                Array.Fill(availableColors, true);
+
+                // Проверяем цвета смежных вершин
+                for (int j = 0; j < n; j++)
+                {
+                    if (this._adjacencyMatrix[vertex, j] == 1 && colors[j] != -1)
+                    {
+                        availableColors[colors[j] - 1] = false; // Цвет уже используется
+                    }
+                }
+
+                // Находим первый доступный цвет
+                for (int color = 0; color < maxColors; color++)
+                {
+                    if (availableColors[color])
+                    {
+                        colors[vertex] = color + 1; // Назначаем цвет (начиная с 1)
+                        break;
+                    }
+                }
+            }
+        }
+
+        private List<int> RandomPermutation(int n, Random random)
+        {
+            var list = Enumerable.Range(0, n).ToList();
+            for (int i = list.Count - 1; i > 0; i--)
+            {
+                int j = random.Next(i + 1);
+                (list[i], list[j]) = (list[j], list[i]);
+            }
+            return list;
+        }
+
+        private List<List<int>> GenerateDeterministicPermutations(int n)
+        {
+            var list = Enumerable.Range(0, n).ToList();
+            var permutations = new List<List<int>>();
+
+            // Генерация перестановок на основе некоторого фиксированного критерия
+            // Например, можно использовать степени вершин или другие характеристики
+            // Здесь, для простоты, мы просто генерируем перестановки, начиная с исходного порядка
+            this.DoGeneratePermutation(list, 0, n, permutations);
+            return permutations;
+        }
+
+        private void DoGeneratePermutation(List<int> list, int start, int n, List<List<int>> permutations)
+        {
+            if (start == n - 1)
+            {
+                permutations.Add(new List<int>(list));
+            }
+            else
+            {
+                for (int i = start; i < n; i++)
+                {
+                    // Генерация перестановки путём обмена элементов
+                    (list[start], list[i]) = (list[i], list[start]);
+                    this.DoGeneratePermutation(list, start + 1, n, permutations);
+                    (list[start], list[i]) = (list[i], list[start]); // Возврат в исходное состояние
+                }
+            }
         }
 
         #endregion
@@ -235,12 +379,12 @@ namespace GraphBase.Графы
 
         public bool IsAutomorphism(List<int> permutation, int[] colors)
         {
-            int n = _adjacencyMatrix.GetLength(0);
+            int n = this._adjacencyMatrix.GetLength(0);
             for (int i = 0; i < n; i++)
             {
                 for (int j = 0; j < n; j++)
                 {
-                    if (_adjacencyMatrix[i, j] != _adjacencyMatrix[permutation[i], permutation[j]] ||
+                    if (this._adjacencyMatrix[i, j] != this._adjacencyMatrix[permutation[i], permutation[j]] ||
                         colors[i] != colors[permutation[i]])
                     {
                         return false;
@@ -252,13 +396,13 @@ namespace GraphBase.Графы
 
         public override int GetDistinguishingNumber(int maxColors = 1024)
         {
-            int n = _adjacencyMatrix.GetLength(0);
+            int n = this._adjacencyMatrix.GetLength(0);
             int[] colors = new int[n];
 
             for (int currentMaxColors = 1; currentMaxColors <= maxColors; currentMaxColors++)
             {
-                //if (TryColoring(colors, 0, currentMaxColors) || currentMaxColors == maxColors)
-                if (TryColoring(colors, 0, currentMaxColors))
+                if (TryColoring(colors, 0, currentMaxColors) || currentMaxColors == maxColors)
+                //if (this.TryColoring(colors, 0, currentMaxColors))
                     return currentMaxColors;
             }
 
@@ -269,13 +413,13 @@ namespace GraphBase.Графы
         {
             if (index == colors.Length)
             {
-                return CheckAllAutomorphismsBroken(colors);
+                return this.CheckAllAutomorphismsBroken(colors);
             }
 
             for (int color = 1; color <= maxColors; color++)
             {
                 colors[index] = color;
-                if (TryColoring(colors, index + 1, maxColors))
+                if (this.TryColoring(colors, index + 1, maxColors))
                     return true;
             }
 
@@ -284,8 +428,8 @@ namespace GraphBase.Графы
 
         private bool CheckAllAutomorphismsBroken(int[] colors)
         {
-            var permutations = GetPermutations(Enumerable.Range(0, _adjacencyMatrix.GetLength(0)).ToList());
-            return permutations.All(permutation => !IsAutomorphism(permutation, colors));
+            IEnumerable<List<int>> permutations = GetPermutations(Enumerable.Range(0, this._adjacencyMatrix.GetLength(0)).ToList());
+            return permutations.All(permutation => !this.IsAutomorphism(permutation, colors));
         }
 
         #endregion
@@ -297,7 +441,7 @@ namespace GraphBase.Графы
             string g6String = new G6String(new AdjacencyMatrix(this.AdjacencyMatrix)).G6;
 
             // Получаем различительное число
-            int distinguishingNumber = GetDistinguishingNumber(numberOfColors);
+            int distinguishingNumber = this.GetDistinguishingNumberLite(numberOfColors);
 
             // Формируем итоговую строку
             return $"G6-представление: {g6String}, Различительное число: {distinguishingNumber}";
