@@ -4,12 +4,15 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using GraphBase.Параметры;
+using МатКлассы;
 
 class Program
 {
     static void Main(string[] args)
     {
         bool DEBUG = false; // Значение флага DEBUG
+
+        //string infoTest = new GraphCustom(new G6String("D?{")).GetInfo();
 
         try
         {

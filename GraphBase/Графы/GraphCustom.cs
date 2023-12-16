@@ -1,4 +1,5 @@
 ﻿using GraphBase.Параметры;
+using МатКлассы;
 
 namespace GraphBase.Графы
 {
@@ -402,7 +403,7 @@ namespace GraphBase.Графы
             for (int currentMaxColors = 1; currentMaxColors <= maxColors; currentMaxColors++)
             {
                 if (TryColoring(colors, 0, currentMaxColors) || currentMaxColors == maxColors)
-                //if (this.TryColoring(colors, 0, currentMaxColors))
+                    //if (this.TryColoring(colors, 0, currentMaxColors))
                     return currentMaxColors;
             }
 
@@ -437,12 +438,16 @@ namespace GraphBase.Графы
         #region Подсчет характеристик
         public override string GetInfo(int numberOfColors = 0)
         {
+
+
             // Получаем G6-представление графа
             string g6String = new G6String(new AdjacencyMatrix(this.AdjacencyMatrix)).G6;
 
             // Получаем различительное число
-            int distinguishingNumber = this.GetDistinguishingNumberLite(numberOfColors);
-
+            //int distinguishingNumber = this.GetDistinguishingNumberLite(numberOfColors);
+            SqMatrix sqMatrix = new SqMatrix(this.AdjacencyMatrix);
+            Graphs g = new Graphs(sqMatrix);
+            int distinguishingNumber = g.ChromaticNumber;
             // Формируем итоговую строку
             return $"G6-представление: {g6String}, Различительное число: {distinguishingNumber}";
         }
