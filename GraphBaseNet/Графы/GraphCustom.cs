@@ -362,7 +362,9 @@ namespace GraphBase.Графы
             int automorphismCount = this.GetAutomorphismCount(numberOfColors);
 
             // Формируем итоговую строку
-            return $"G6-представление: {g6String},Вектор степеней: {adjacencyMatrix.ToDegreeVector()}, Хроматическое число: {chromaticNumber}, Число ориентаци: {orientationsCount}, Число автоморфизмов: {automorphismCount}";
+            //return $"G6-представление: {g6String},Вектор степеней: {adjacencyMatrix.ToDegreeVector()}, Хроматическое число: {chromaticNumber}, Число ориентаци: {orientationsCount}, Число автоморфизмов: {automorphismCount}";
+            return $"G6-представление: {g6String}, Хроматическое число: {chromaticNumber}, Число ориентаци: {orientationsCount}, Число автоморфизмов: {automorphismCount}";
+
 
             //SqMatrix sqMatrix = new SqMatrix(this.AdjacencyMatrix);
             //Graphs g = new Graphs(sqMatrix);

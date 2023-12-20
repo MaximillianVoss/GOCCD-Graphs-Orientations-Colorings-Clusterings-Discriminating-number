@@ -27,7 +27,6 @@ namespace Точка_входа___Оконное_приложение__WPF
     public partial class MainWindow : Window
     {
 
-
         #region Поля
         // Словарь для хранения числа графов для заданного количества вершин
         Dictionary<int, long> graphCounts = new Dictionary<int, long>
@@ -50,6 +49,7 @@ namespace Точка_входа___Оконное_приложение__WPF
                     // Продолжайте шаблон для других значений, уменьшая
         };
         int cmbGraphTypeIndex = 0;
+        int cmbMethodIndex = 1;
         #endregion
 
         #region Свойства
@@ -66,9 +66,9 @@ namespace Точка_входа___Оконное_приложение__WPF
             this.txbColorsCount.ValidationText = "Введенное значение не является числом!";
             this.txbColorsCount.RegEx = "^\\d+$";
 
-            this.cmbMethod.Add("Генерация с помощью вектора степеней");
-            this.cmbMethod.Add("Генерация с помощью канонического кода");
-            this.cmbMethod.SelectedIndex = 0;
+            //this.cmbMethod.Add("Генерация с помощью вектора степеней");
+            //this.cmbMethod.Add("Генерация с помощью канонического кода");
+            //this.cmbMethod.SelectedIndex = 0;
         }
 
         private async void Start()
@@ -85,18 +85,19 @@ namespace Точка_входа___Оконное_приложение__WPF
                 return;
             }
 
-            if (this.cmbMethod.SelectedIndex == -1)
-            {
-                MessageBox.Show("Не выбран метод генерации!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
+            //if (this.cmbMethod.SelectedIndex == -1)
+            //{
+            //    MessageBox.Show("Не выбран метод генерации!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            //    return;
+            //}
 
 
 
             // Создание генератора и выбор метода генерации
             var generator = new GeneratorNaughty(vertexCount);
-            string generationMethod = this.cmbMethod.SelectedIndex == 0 ? "Вектор степеней" : "Канонический код";
+            //string generationMethod = this.cmbMethod.SelectedIndex == 0 ? "Вектор степеней" : "Канонический код";
             //string graphType = this.cmbGraphType.SelectedIndex == 0 ? "Пользовательский" : "QuickGraph";
+            string generationMethod = cmbMethodIndex == 0 ? "Вектор степеней" : "Канонический код";
             string graphType = cmbGraphTypeIndex == 0 ? "Пользовательский" : "QuickGraph";
 
             // Подготовка к сохранению файла
@@ -144,7 +145,8 @@ namespace Точка_входа___Оконное_приложение__WPF
                             var adjacencyMatrix = new G6String(g6).ToAdjacencyMatrix();
                             Graph graph = null;
 
-                            switch (this.cmbMethod.SelectedIndex)
+                            //switch (this.cmbMethod.SelectedIndex)
+                            switch (this.cmbMethodIndex)
                             {
                                 case 0:
                                     var degreeVector = adjacencyMatrix.ToDegreeVector();
@@ -224,11 +226,11 @@ namespace Точка_входа___Оконное_приложение__WPF
                 ShowError(ex);
             }
         }
+        private void btnCalc_Loaded(object sender, RoutedEventArgs e)
+        {
+
+        }
         #endregion
-
-
-
-
 
     }
 }
