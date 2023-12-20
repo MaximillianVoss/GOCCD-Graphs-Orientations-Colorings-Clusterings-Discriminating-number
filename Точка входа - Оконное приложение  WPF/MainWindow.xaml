@@ -13,7 +13,7 @@
         <CustomControlsWPF:LabeledTextBox x:Name="txbColorsCount" Margin="10,85,10,0" VerticalAlignment="Top" Text="" Title="Число цветов"/>
         <CustomControlsWPF:LabeledComboBox x:Name="cmbMethod" Margin="10,160,10,0" VerticalAlignment="Top" Title="Метод генерации графов"/>
         <CustomControlsWPF:LabeledProgressBar x:Name="pbProgress" Margin="10,235,10,0" VerticalAlignment="Top" Header="Прогресс выполнения задачи"/>
-        <CustomControlsWPF:ButtonPrimary x:Name="btnCalc" Margin="10,0,10,10" Text="Высчислить хроматическое число" Click="ButtonPrimary_Click" Height="40" VerticalAlignment="Bottom"/>
+        <CustomControlsWPF:ButtonPrimary x:Name="btnCalc" Margin="10,0,10,10" Text="Вычислить" Click="ButtonPrimary_Click" Height="40" VerticalAlignment="Bottom"/>
 
     </Grid>
 </Window>
