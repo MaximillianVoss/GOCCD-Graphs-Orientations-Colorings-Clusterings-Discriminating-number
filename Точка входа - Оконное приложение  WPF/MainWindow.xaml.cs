@@ -79,6 +79,11 @@ namespace Точка_входа___Оконное_приложение__WPF
                 MessageBox.Show("Введенное значение не является положительным числом!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
+            if (!int.TryParse(this.txbColorsCount.Text, out int colorsCount) || colorsCount <= 0 || !this.txbColorsCount.IsValid)
+            {
+                MessageBox.Show("Введенное значение не является положительным числом!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
 
             if (this.cmbMethod.SelectedIndex == -1)
             {
@@ -160,8 +165,7 @@ namespace Точка_входа___Оконное_приложение__WPF
                             Console.Write(graphNumStr);
                             reportFile.Write(graphNumStr);
 
-
-                            string graphInfo = graph.ToString();
+                            string graphInfo = graph.ToString(Convert.ToInt32(this.txbColorsCount.Text));
                             Console.WriteLine(graphInfo);
                             reportFile.WriteLine(graphInfo);
                             // Обновление ProgressBar

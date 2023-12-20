@@ -206,6 +206,74 @@ namespace GraphBase.Графы
 
         #endregion
 
+        #region Автоморфизмы
+        public int GetAutomorphismCount(int colorCount)
+        {
+            int vertexCount = this._adjacencyMatrix.GetLength(0);
+            var permutations = GetPermutations(Enumerable.Range(0, vertexCount).ToList());
+            return permutations.Count(permutation => IsValidColorPermutation(permutation, colorCount, vertexCount));
+        }
+        private bool IsValidColorPermutation(List<int> permutation, int colorCount, int vertexCount)
+        {
+            // Создаем массив для хранения текущего распределения цветов
+            int[] colorAssignments = new int[vertexCount];
+
+            // Инициализируем распределение цветов (например, каждой вершине присваиваем цвет в соответствии с ее номером)
+            for (int i = 0; i < vertexCount; i++)
+            {
+                colorAssignments[i] = i % colorCount;
+            }
+
+            // Проверяем, является ли перестановка допустимой с учетом распределения цветов
+            for (int i = 0; i < vertexCount; i++)
+            {
+                for (int j = 0; j < vertexCount; j++)
+                {
+                    if (this._adjacencyMatrix[i, j] != this._adjacencyMatrix[permutation[i], permutation[j]] ||
+                        colorAssignments[i] != colorAssignments[permutation[i]])
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+        private bool IsAutomorphism(List<int> permutation, int[] colors)
+        {
+            int n = this._adjacencyMatrix.GetLength(0);
+            for (int i = 0; i < n; i++)
+            {
+                for (int j = 0; j < n; j++)
+                {
+                    if (this._adjacencyMatrix[i, j] != this._adjacencyMatrix[permutation[i], permutation[j]] ||
+                        (colors != null && colors[i] != colors[permutation[i]]))
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        #endregion
+
+        #region Ориентации
+        public int GetOrientationsCount()
+        {
+            int edgeCount = 0;
+            for (int i = 0; i < this._adjacencyMatrix.GetLength(0); i++)
+            {
+                for (int j = i + 1; j < this._adjacencyMatrix.GetLength(1); j++)
+                {
+                    if (this._adjacencyMatrix[i, j] == 1)
+                        edgeCount++;
+                }
+            }
+            return (int)Math.Pow(2, edgeCount);
+        }
+
+        #endregion
+
         #region Различительное число
         public static IEnumerable<List<int>> GetPermutations(List<int> list)
         {
@@ -240,23 +308,6 @@ namespace GraphBase.Графы
 
                 yield return list.ToList();
             }
-        }
-
-        public bool IsAutomorphism(List<int> permutation, int[] colors)
-        {
-            int n = this._adjacencyMatrix.GetLength(0);
-            for (int i = 0; i < n; i++)
-            {
-                for (int j = 0; j < n; j++)
-                {
-                    if (this._adjacencyMatrix[i, j] != this._adjacencyMatrix[permutation[i], permutation[j]] ||
-                        colors[i] != colors[permutation[i]])
-                    {
-                        return false;
-                    }
-                }
-            }
-            return true;
         }
 
         public override int GetDistinguishingNumber(int maxColors = 1024)
@@ -307,12 +358,11 @@ namespace GraphBase.Графы
 
             // Получаем хроматическое число и хроматический индекс
             int chromaticNumber = this.GetChromaticNumber();
-            int chromaticIndex = this.GetChromaticIndex();
+            int orientationsCount = this.GetOrientationsCount();
+            int automorphismCount = this.GetAutomorphismCount(numberOfColors);
 
             // Формируем итоговую строку
-            return $"G6-представление: {g6String},Вектор степеней: {adjacencyMatrix.ToDegreeVector()}, Хроматическое число: {chromaticNumber}, Хроматический индекс: {chromaticIndex}";
-
-
+            return $"G6-представление: {g6String},Вектор степеней: {adjacencyMatrix.ToDegreeVector()}, Хроматическое число: {chromaticNumber}, Число ориентаци: {orientationsCount}, Число автоморфизмов: {automorphismCount}";
 
             //SqMatrix sqMatrix = new SqMatrix(this.AdjacencyMatrix);
             //Graphs g = new Graphs(sqMatrix);
