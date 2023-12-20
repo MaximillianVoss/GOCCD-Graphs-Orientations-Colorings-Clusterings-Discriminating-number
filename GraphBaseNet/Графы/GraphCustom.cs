@@ -1,5 +1,7 @@
 ﻿using GraphBase.Параметры;
-using МатКлассы;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace GraphBase.Графы
 {
@@ -155,34 +157,40 @@ namespace GraphBase.Графы
             {
                 for (int v = 0; v < this.VerticesCount; v++)
                 {
-                    if (u >= this.VerticesCount || v >= this.VerticesCount) // Проверка границ массива
-                        continue;
-
                     if (this._adjacencyMatrix[u, v] != 1 || edgeColors[u, v] != -1)
                         continue;
 
                     bool[] availableColors = new bool[this.VerticesCount];
-                    Array.Fill(availableColors, true);
+                    for (int i = 0; i < availableColors.Length; i++)
+                    {
+                        availableColors[i] = true;
+                    }
+
 
                     // Проверяем цвета смежных рёбер
                     for (int i = 0; i < this.VerticesCount; i++)
                     {
-                        if (i >= this.VerticesCount) // Проверка границ массива
-                            continue;
-
                         if (this._adjacencyMatrix[u, i] == 1 && edgeColors[u, i] != -1)
-                            availableColors[edgeColors[u, i]] = false;
+                        {
+                            if (edgeColors[u, i] < this.VerticesCount) // Убедимся, что индекс находится в пределах массива
+                            {
+                                availableColors[edgeColors[u, i]] = false;
+                            }
+                        }
                         if (this._adjacencyMatrix[v, i] == 1 && edgeColors[v, i] != -1)
-                            availableColors[edgeColors[v, i]] = false;
+                        {
+                            if (edgeColors[v, i] < this.VerticesCount) // Аналогично для v
+                            {
+                                availableColors[edgeColors[v, i]] = false;
+                            }
+                        }
                     }
+
 
                     // Выбираем первый доступный цвет
                     int cr;
                     for (cr = 0; cr < this.VerticesCount; cr++)
                     {
-                        if (cr >= this.VerticesCount) // Проверка границ массива
-                            break;
-
                         if (availableColors[cr])
                             break;
                     }
@@ -195,150 +203,6 @@ namespace GraphBase.Графы
             return maxColor;
         }
 
-        #endregion
-
-        #region Различительное число упрощенная версия
-        public int GetDistinguishingNumberLite(int maxColors = 10)
-        {
-            int n = _adjacencyMatrix.GetLength(0);
-            int edgeCount = 0;
-            bool isCompleteGraph = true;
-
-            // Вычисляем количество рёбер и проверяем, является ли граф полносвязным
-            for (int i = 0; i < n; i++)
-            {
-                for (int j = i + 1; j < n; j++)
-                {
-                    if (_adjacencyMatrix[i, j] == 1)
-                    {
-                        edgeCount++;
-                    }
-                    else if (i != j)
-                    {
-                        isCompleteGraph = false;
-                    }
-                }
-            }
-
-            if (isCompleteGraph)
-            {
-                return n <= maxColors ? n : -1; // Для полносвязного графа, если n превышает maxColors, возвращаем -1
-            }
-
-            // Оцениваем плотность графа
-            double density = (double)edgeCount / (n * (n - 1) / 2);
-            int estimatedDistinguishingNumber;
-
-            if (density > 0.75)
-            {
-                estimatedDistinguishingNumber = n - 1;
-            }
-            else if (density > 0.5)
-            {
-                estimatedDistinguishingNumber = Math.Min(n / 2, 5);
-            }
-            else
-            {
-                estimatedDistinguishingNumber = Math.Min(3, n);
-            }
-
-            // Сравниваем оценочное различительное число с maxColors
-            return estimatedDistinguishingNumber <= maxColors ? estimatedDistinguishingNumber : -1;
-        }
-
-
-        private void SimpleColoring(int[] colors, int maxColors)
-        {
-            int n = this._adjacencyMatrix.GetLength(0);
-            int[] degrees = new int[n];
-            var vertices = new List<int>(n);
-
-            // Вычисляем степень каждой вершины
-            for (int i = 0; i < n; i++)
-            {
-                int degree = 0;
-                for (int j = 0; j < n; j++)
-                {
-                    if (this._adjacencyMatrix[i, j] == 1)
-                        degree++;
-                }
-                degrees[i] = degree;
-                vertices.Add(i);
-            }
-
-            // Сортируем вершины по убыванию степени
-            vertices.Sort((a, b) => degrees[b].CompareTo(degrees[a]));
-
-            // Инициализируем все цвета как -1 (не окрашено)
-            Array.Fill(colors, -1);
-
-            // Раскрашиваем каждую вершину
-            foreach (int vertex in vertices)
-            {
-                bool[] availableColors = new bool[maxColors];
-                Array.Fill(availableColors, true);
-
-                // Проверяем цвета смежных вершин
-                for (int j = 0; j < n; j++)
-                {
-                    if (this._adjacencyMatrix[vertex, j] == 1 && colors[j] != -1)
-                    {
-                        availableColors[colors[j] - 1] = false; // Цвет уже используется
-                    }
-                }
-
-                // Находим первый доступный цвет
-                for (int color = 0; color < maxColors; color++)
-                {
-                    if (availableColors[color])
-                    {
-                        colors[vertex] = color + 1; // Назначаем цвет (начиная с 1)
-                        break;
-                    }
-                }
-            }
-        }
-
-        private List<int> RandomPermutation(int n, Random random)
-        {
-            var list = Enumerable.Range(0, n).ToList();
-            for (int i = list.Count - 1; i > 0; i--)
-            {
-                int j = random.Next(i + 1);
-                (list[i], list[j]) = (list[j], list[i]);
-            }
-            return list;
-        }
-
-        private List<List<int>> GenerateDeterministicPermutations(int n)
-        {
-            var list = Enumerable.Range(0, n).ToList();
-            var permutations = new List<List<int>>();
-
-            // Генерация перестановок на основе некоторого фиксированного критерия
-            // Например, можно использовать степени вершин или другие характеристики
-            // Здесь, для простоты, мы просто генерируем перестановки, начиная с исходного порядка
-            this.DoGeneratePermutation(list, 0, n, permutations);
-            return permutations;
-        }
-
-        private void DoGeneratePermutation(List<int> list, int start, int n, List<List<int>> permutations)
-        {
-            if (start == n - 1)
-            {
-                permutations.Add(new List<int>(list));
-            }
-            else
-            {
-                for (int i = start; i < n; i++)
-                {
-                    // Генерация перестановки путём обмена элементов
-                    (list[start], list[i]) = (list[i], list[start]);
-                    this.DoGeneratePermutation(list, start + 1, n, permutations);
-                    (list[start], list[i]) = (list[i], list[start]); // Возврат в исходное состояние
-                }
-            }
-        }
 
         #endregion
 
@@ -402,8 +266,7 @@ namespace GraphBase.Графы
 
             for (int currentMaxColors = 1; currentMaxColors <= maxColors; currentMaxColors++)
             {
-                if (TryColoring(colors, 0, currentMaxColors) || currentMaxColors == maxColors)
-                    //if (this.TryColoring(colors, 0, currentMaxColors))
+                if (this.TryColoring(colors, 0, currentMaxColors))
                     return currentMaxColors;
             }
 
@@ -438,19 +301,24 @@ namespace GraphBase.Графы
         #region Подсчет характеристик
         public override string GetInfo(int numberOfColors = 0)
         {
-
-
             // Получаем G6-представление графа
-            string g6String = new G6String(new AdjacencyMatrix(this.AdjacencyMatrix)).G6;
+            AdjacencyMatrix adjacencyMatrix = new AdjacencyMatrix(this.AdjacencyMatrix);
+            string g6String = new G6String(adjacencyMatrix).G6;
 
-            // Получаем различительное число
-            //int distinguishingNumber = this.GetDistinguishingNumberLite(numberOfColors);
-            SqMatrix sqMatrix = new SqMatrix(this.AdjacencyMatrix);
-            Graphs g = new Graphs(sqMatrix);
-            int distinguishingNumber = g.ChromaticNumber;
-            
+            // Получаем хроматическое число и хроматический индекс
+            int chromaticNumber = this.GetChromaticNumber();
+            int chromaticIndex = this.GetChromaticIndex();
+
             // Формируем итоговую строку
-            return $"G6-представление: {g6String}, Различительное число: {distinguishingNumber}";
+            return $"G6-представление: {g6String},Вектор степеней: {adjacencyMatrix.ToDegreeVector()}, Хроматическое число: {chromaticNumber}, Хроматический индекс: {chromaticIndex}";
+
+
+
+            //SqMatrix sqMatrix = new SqMatrix(this.AdjacencyMatrix);
+            //Graphs g = new Graphs(sqMatrix);
+            //int distinguishingNumber = g.ChromaticNumber;
+            //// Формируем итоговую строку
+            //return $"G6-представление: {g6String}, Различительное число: {distinguishingNumber}";
         }
 
         #endregion

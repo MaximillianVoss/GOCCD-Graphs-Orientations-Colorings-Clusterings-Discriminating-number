@@ -11,6 +11,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphBaseTests", "GraphBase
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Точка входа", "Точка входа\Точка входа.csproj", "{9C9A8617-5A3F-4AAF-A8CE-104C89E19E32}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Точка входа - Оконное приложение  WPF", "Точка входа - Оконное приложение  WPF\Точка входа - Оконное приложение  WPF.csproj", "{9FCFCDC1-6CFE-4C5F-A715-87C01E40CD4D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Custom Controls WPF", "Custom Controls WPF\Custom Controls WPF.csproj", "{CECDF44D-9DEB-4A2C-837C-234A867D03A2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GraphBaseNet", "GraphBaseNet\GraphBaseNet.csproj", "{584DDE93-81F7-4AA1-B512-67AA3F70F9E7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +39,18 @@ Global
 		{9C9A8617-5A3F-4AAF-A8CE-104C89E19E32}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9C9A8617-5A3F-4AAF-A8CE-104C89E19E32}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9C9A8617-5A3F-4AAF-A8CE-104C89E19E32}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9FCFCDC1-6CFE-4C5F-A715-87C01E40CD4D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9FCFCDC1-6CFE-4C5F-A715-87C01E40CD4D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9FCFCDC1-6CFE-4C5F-A715-87C01E40CD4D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9FCFCDC1-6CFE-4C5F-A715-87C01E40CD4D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CECDF44D-9DEB-4A2C-837C-234A867D03A2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CECDF44D-9DEB-4A2C-837C-234A867D03A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CECDF44D-9DEB-4A2C-837C-234A867D03A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CECDF44D-9DEB-4A2C-837C-234A867D03A2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{584DDE93-81F7-4AA1-B512-67AA3F70F9E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{584DDE93-81F7-4AA1-B512-67AA3F70F9E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{584DDE93-81F7-4AA1-B512-67AA3F70F9E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{584DDE93-81F7-4AA1-B512-67AA3F70F9E7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
